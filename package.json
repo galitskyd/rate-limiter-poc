@@ -1,0 +1,15 @@
+{
+  "name": "provn-rate-limiter-poc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dependency-free in-memory API rate limiter middleware proof of concept",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "demo": "node scripts/demo.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

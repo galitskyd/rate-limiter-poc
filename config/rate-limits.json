@@ -1,0 +1,32 @@
+{
+  "defaultTier": "standard",
+  "tiers": {
+    "anonymous": { "capacity": 20, "refillPerSecond": 0.3333333333 },
+    "standard": { "capacity": 100, "refillPerSecond": 1.6666666667 },
+    "premium": { "capacity": 500, "refillPerSecond": 8.3333333333 }
+  },
+  "clients": {
+    "org-premium-demo": { "tier": "premium" },
+    "org-custom-demo": {
+      "tier": "standard",
+      "limit": { "capacity": 200, "refillPerSecond": 3.3333333333 }
+    }
+  },
+  "endpointPolicies": [
+    {
+      "name": "writes",
+      "methods": ["POST", "PUT", "PATCH", "DELETE"],
+      "pathPrefix": "/api/",
+      "limit": { "capacity": 20, "refillPerSecond": 0.3333333333 }
+    },
+    {
+      "name": "reads",
+      "methods": ["GET", "HEAD"],
+      "pathPrefix": "/api/",
+      "limit": { "capacity": 120, "refillPerSecond": 2 }
+    }
+  ],
+  "excludedPaths": ["/health"],
+  "idleEntryTtlSeconds": 900,
+  "sweepIntervalSeconds": 60
+}
