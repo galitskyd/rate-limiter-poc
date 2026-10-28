@@ -38,3 +38,4 @@ Expected verification: all six tests pass. The demo reports HTTP 200 for health 
 ## Submission note
 
 If the platform expects a repository URL rather than an attached folder, publish the `rate-limiter-poc` directory to a repository you control and add that URL here before uploading this Markdown document.
+[Project Repo](https://github.com/galitskyd/rate-limiter-poc)
