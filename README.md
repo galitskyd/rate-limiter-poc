@@ -36,7 +36,6 @@ Requests identify their organization with `x-org-id`. `org-premium-demo` receive
 - `src/server.js` — minimal integration with read, write, and health routes.
 - `test/rate-limiter.test.js` — deterministic unit and middleware-contract tests.
 - `scripts/demo.js` — repeatable demo for the video walkthrough.
-- `VIDEO_OUTLINE.md` — timed, speakable recording guide.
 
 ## Section A — Architecture & Trade-offs
 
@@ -58,23 +57,18 @@ Multiple API instances are the largest correctness gap. Each instance owns indep
 
 Memory grows with active organizations multiplied by active endpoint keys. The POC prunes idle entries, but high-cardinality raw paths or adversarial IDs can still drive growth between sweeps. Production keys should use authenticated organization IDs and normalized route templates, with maximum key length and cardinality safeguards. I would monitor bucket-map size, process RSS/heap, event-loop delay, eviction count, 429 rate by policy, and distinct active organizations. Map size and heap growth are the earliest direct signals; paging or event-loop delay means detection came too late.
 
-### B2 — Required reasoning question (candidate-authored)
+### B2 — Required reasoning question
 
-The challenge explicitly requires this answer **without AI assistance**, so it is intentionally not written here. Before submission, replace this paragraph in your own words:
+The original implmentation had limit checks per endpoint which caused a bug where a POST request would count against both the org level and endpoint level even if the request was rejected. To the end user, there could be a situation where they lock themselves out of all functionality if they have an unchecked operation running into limits that are consuming other limits even after rejection. Aew approach was to do all the checks upfront at the org and endpoint levels then do the deduction on success, treating it more like an atomic DB operation. This operation was changed an additional test was added to account for this.
 
-> Describe a scenario where an AI coding assistant gives a plausible but incorrect answer for this problem. What would the incorrect output look like? How would you catch it before acting on it?
-
-Use a scenario you personally understand and can defend. A strong answer names observable incorrect behavior, then explains the test, invariant, calculation, or code review step that would expose it. Do not submit this placeholder.
-
-## Section C — AI Usage Log (Mandatory)
-
-This is a factual draft of this build session. Review it and adjust only where your own decisions differ.
+## Section C — AI Usage Log
 
 | Interaction | What was asked | What the AI produced | What was kept, changed, or rejected — and why |
 |---|---|---|---|
 | Requirements extraction | Read the authenticated challenge and prepare everything except the video and final submission. | A requirements checklist covering organization tiers, endpoint limits, middleware placement, 429 behavior, configuration, in-memory constraints, tests, documentation, and the required AI evidence. | Kept as the acceptance criteria. Starting the challenge, uploads, and final submission were rejected because those actions must remain under candidate control. |
 | Initial design and implementation | Build a small, defensible POC with no external infrastructure. | Dependency-free Node.js middleware using token buckets, JSON configuration, sample routes, idle cleanup, and tests. | Kept token bucket and centralized middleware. The design was tightened to use a two-phase inspect/commit so a request rejected by its endpoint limit cannot still consume its organization quota. Endpoint keys include method and path so separate endpoints do not silently share one counter. |
 | Test and correction pass | Run the suite and verify behavior in the available environment. | Five deterministic tests passed; the first HTTP integration test failed because loopback `fetch` was unavailable in the restricted build environment. | Rejected the environment-dependent test harness, not the middleware behavior. Replaced it with a direct middleware contract test that asserts status, headers, and JSON body without a network socket. The final suite passes all six tests, including partial-charge protection and idle pruning. |
+| Upfront validation and full transaction operation | Review the current rate-limiter implementation, focusing on how a single request is evaluated against both the organization-wide quota and the endpoint-specific quota. Inspect every applicable bucket without mutating state. If any bucket is exhausted, reject the request and mutate none of the buckets. Only when all checks pass, decrement every applicable bucket. Keep the inspection and commit synchronous. Preserve the existing middleware API and the meaningful 429 response. Add a deterministic regression test for this exact scenario. | Bug fix with desired results and a regression test | Changes were kept as the desired results and regression test was created successfully. |
 
 ## Known constraints at a glance
 
@@ -84,18 +78,3 @@ This is a factual draft of this build session. Review it and adjust only where y
 - JSON configuration is validated at startup but is not hot-reloaded.
 - Client identity is a demo header; production must derive it from trusted authentication context.
 - Token bucket permits bounded bursts up to configured capacity.
-
-## Verification checklist
-
-- [x] Per-client configurable standard, premium, anonymous, and override limits
-- [x] Per-endpoint read/write policies with stricter writes
-- [x] Reusable middleware before route handlers
-- [x] HTTP 429, failed limit type, and `Retry-After`
-- [x] Configuration outside source code with startup validation
-- [x] Minimal read/write/health integration
-- [x] Failure-mode and scaling documentation
-- [x] Deterministic tests and repeatable demo
-- [ ] Candidate writes B2 independently
-- [ ] Candidate reviews/personalizes the AI log and video story
-- [ ] Candidate records the 8–10 minute video
-- [ ] Candidate publishes/uploads/submits

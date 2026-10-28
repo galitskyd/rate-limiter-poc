@@ -14,7 +14,6 @@ The complete working source accompanies this document in the `rate-limiter-poc` 
 | `test/rate-limiter.test.js` | Six deterministic behavior and response-contract tests |
 | `scripts/demo.js` | Repeatable demonstration of allowed and rejected traffic |
 | `README.md` | Architecture, trade-offs, production plan, AI log, and runbook |
-| `VIDEO_OUTLINE.md` | Candidate-owned 8–10 minute walkthrough guide |
 
 ## Run and verify
 
@@ -38,4 +37,4 @@ Expected verification: all six tests pass. The demo reports HTTP 200 for health 
 
 ## Submission note
 
-If the platform expects a repository URL rather than an attached folder, publish the `rate-limiter-poc` directory to a repository you control and add that URL here before uploading this Markdown document. No repository was published and no challenge submission was made automatically.
+If the platform expects a repository URL rather than an attached folder, publish the `rate-limiter-poc` directory to a repository you control and add that URL here before uploading this Markdown document.
